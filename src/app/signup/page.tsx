@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-
+import { useRouter } from 'next/navigation';
 
 export default function page() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -19,32 +19,37 @@ const alerting = async (e:any)=>{
  if(!name || !email || !password)
     seterror("All Fields are required")
   try {
-    const Useralready = await fetch('api/userexist',{
-      method:'POST', 
+    const userExistResponse = await fetch('api/userexist', {
+      method: 'POST',
       headers: {
-        "content-type": "application/json"  
+          "Content-Type": "application/json"
       },
-      body: JSON.stringify({email})
-    
-    })
-    const{user} = await Useralready.json();
-    if(user){
-      seterror("User Already Exist")
-      return
-    }
+      body: JSON.stringify({ email })
+  });
+
+  const { userExists } = await userExistResponse.json();
+
+  if (userExists) {
+      seterror("User Already Exists");
+      return;
+  }
+
  const res=   await fetch("api/register",{
       method:'POST', 
       headers: {
-        "content-type": "application/json"
+        "content-Type": "application/json"
       },
       body: JSON.stringify({
         name,email,password
       })
 
     })
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const router=useRouter();
     if(res.ok){
       const form = e.target
       form.reset()
+      router.push("/")
     }
     else {
       console.log("User Failed");
