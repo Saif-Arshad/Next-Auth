@@ -1,5 +1,4 @@
 'use client'
-import { Span } from 'next/dist/trace';
 import React, { useState } from 'react'
 
 
@@ -15,10 +14,50 @@ export default function page() {
 
   // console.log(name, password, email);
   
-const alerting = (e:any)=>{
+const alerting = async (e:any)=>{
   e.preventDefault()
  if(!name || !email || !password)
     seterror("All Fields are required")
+  try {
+    const Useralready = await fetch('api/userexist',{
+      method:'POST', 
+      headers: {
+        "content-type": "application/json"  
+      },
+      body: JSON.stringify({email})
+    
+    })
+    const{user} = await Useralready.json();
+    if(user){
+      seterror("User Already Exist")
+      return
+    }
+ const res=   await fetch("api/register",{
+      method:'POST', 
+      headers: {
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        name,email,password
+      })
+
+    })
+    if(res.ok){
+      const form = e.target
+      form.reset()
+    }
+    else {
+      console.log("User Failed");
+      
+    }
+
+  } catch (error) {
+    console.log(error);
+    
+    
+  }
+ 
+ 
   }
 
   return (
@@ -38,7 +77,5 @@ const alerting = (e:any)=>{
   </div>
   )
 }
-function fuc() {
-  throw new Error('Function not implemented.');
-}
+
 
